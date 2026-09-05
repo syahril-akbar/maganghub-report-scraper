@@ -1,97 +1,97 @@
-# MagangHub Report Scraper
+# Scraper Laporan MagangHub
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Playwright](https://img.shields.io/badge/Playwright-1.62%2B-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/python/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-0078D4?logo=windows&logoColor=white)](https://www.microsoft.com/windows)
 
-Interactive Python tool for exporting MagangHub Monev daily internship reports into a clean Markdown monthly report.
+Tool Python interaktif untuk mengekspor laporan harian MagangHub Monev menjadi laporan bulanan berformat Markdown.
 
-> Login stays manual. Credentials, cookies, SSO tokens, browser profiles, logs, and generated reports are excluded from Git.
+> Login tetap manual. Kredensial, cookie, token SSO, profile browser, log, serta laporan hasil scrape tidak disimpan di Git.
 
-## What It Exports
+## Data yang Diekspor
 
-For every available weekday in a selected date range:
+Untuk setiap hari kerja yang memiliki laporan dalam rentang tanggal pilihan:
 
 - Uraian Aktivitas
 - Pembelajaran yang Diperoleh
 - Kendala yang Dialami
-- Status approval and attendance
+- Status persetujuan dan kehadiran
 
-## Features
+## Fitur
 
-- Interactive start/end date input.
-- Manual SSO authentication in a real Playwright Chromium browser.
-- Reuses a local-only browser session at `%LOCALAPPDATA%\MagangHubScraper\profile`.
-- Navigates reports directly using `date=YYYY-MM-DD`.
-- Skips weekends automatically.
-- Retries unstable SSO/navigation redirects.
-- Requires all three report sections before accepting an entry.
-- Writes Markdown atomically; valid prior output is never replaced with an empty file.
-- Sanitizes SSO URL logs; query strings, tokens, and cookies are not logged.
-- Includes offline parser and browser-cleanup regression checks.
+- Input tanggal mulai dan akhir secara interaktif.
+- Login SSO manual melalui Chromium Playwright nyata.
+- Session browser disimpan lokal di `%LOCALAPPDATA%\MagangHubScraper\profile`.
+- Akses laporan langsung melalui parameter `date=YYYY-MM-DD`.
+- Sabtu dan Minggu dilewati otomatis.
+- Retry ketika navigasi atau redirect SSO belum stabil.
+- Laporan diterima hanya bila tiga bagian inti lengkap.
+- Penulisan Markdown atomik; laporan lama tidak diganti file kosong.
+- URL log disanitasi; query SSO, token, dan cookie tidak dicatat.
+- Tes regresi parser dan penutupan browser tersedia tanpa login.
 
-## Quick Start
+## Mulai Cepat
 
 ```powershell
-# 1. Clone
- git clone https://github.com/syahril-akbar/maganghub-report-scraper.git
- cd maganghub-report-scraper
+# 1. Clone repository
+git clone https://github.com/syahril-akbar/maganghub-report-scraper.git
+cd maganghub-report-scraper
 
-# 2. Create isolated environment
+# 2. Buat environment terisolasi
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
-# 3. Install Python dependency and browser
+# 3. Pasang dependency dan browser
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python -m playwright install chromium
 
-# 4. Verify installation
+# 4. Verifikasi instalasi
 python .\test_scrape_maganghub.py
 python .\test_context_cleanup.py
 
-# 5. Run
+# 5. Jalankan scraper
 python .\scrape_maganghub.py
 ```
 
-Expected verification output:
+Output verifikasi yang diharapkan:
 
 ```text
 parser checks: OK
 playwright context cleanup: OK
 ```
 
-## Usage
+## Penggunaan
 
 ```powershell
 python .\scrape_maganghub.py
 ```
 
-Example range:
+Contoh rentang tanggal:
 
 ```text
 Tanggal mulai [YYYY-MM-DD] (Enter = 2026-08-10): 2026-08-10
 Tanggal akhir [YYYY-MM-DD] (Enter = 2026-09-04): 2026-09-04
 ```
 
-When the browser opens:
+Saat browser terbuka:
 
-1. Complete MagangHub SSO yourself.
-2. Wait until the page returns to `Riwayat`.
-3. Confirm the report detail is visible.
-4. Return to PowerShell and press Enter.
+1. Selesaikan SSO MagangHub sendiri.
+2. Tunggu halaman kembali ke `Riwayat`.
+3. Pastikan detail laporan telah tampil.
+4. Kembali ke PowerShell, lalu tekan Enter.
 
-Never enter a password in the terminal, code, Git config, or issue tracker.
+Jangan masukkan password pada terminal, source code, konfigurasi Git, atau issue tracker.
 
 ## Output
 
-A successful run creates a date-specific Markdown file:
+Run berhasil menghasilkan file Markdown sesuai rentang:
 
 ```text
 Laporan-Bulanan-Magang-2026-08-10_sd_2026-09-04.md
 ```
 
-Example:
+Contoh isi:
 
 ```markdown
 ## 10 Agustus 2026
@@ -109,64 +109,64 @@ Example:
 ...
 ```
 
-`OK` means the scraper found and validated all three report sections. `no report` is expected on national holidays or dates without a daily report.
+`OK` berarti tiga bagian laporan ditemukan dan tervalidasi. `no report` wajar pada hari libur nasional atau tanggal tanpa laporan harian.
 
-## Architecture
+## Arsitektur
 
 ```text
 PowerShell
   │
   ├─ scrape_maganghub.py
-  │    ├─ Playwright Chromium
-  │    │    └─ Manual MagangHub SSO
-  │    ├─ Direct report URL per date
-  │    ├─ Safe text parser
-  │    └─ Atomic Markdown writer
+  │    ├─ Chromium Playwright
+  │    │    └─ SSO MagangHub manual
+  │    ├─ URL laporan per tanggal
+  │    ├─ Parser teks aman
+  │    └─ Penulis Markdown atomik
   │
   ├─ %LOCALAPPDATA%\MagangHubScraper\profile
-  │    └─ Local-only authenticated browser session
+  │    └─ Session browser lokal
   │
   └─ Laporan-Bulanan-Magang-*.md
 ```
 
-## Project Layout
+## Struktur Proyek
 
 ```text
 maganghub-report-scraper/
-├── scrape_maganghub.py          # Interactive scraper
-├── test_scrape_maganghub.py     # Offline parser regression check
-├── test_context_cleanup.py       # Playwright shutdown regression check
-├── requirements.txt              # Pinned Python dependency
-├── .gitignore                    # Protects session/runtime artifacts
-├── logs/                         # Runtime logs; ignored
-└── Laporan-Bulanan-Magang-*.md   # Generated private reports; ignored
+├── scrape_maganghub.py          # Scraper interaktif
+├── test_scrape_maganghub.py     # Tes regresi parser offline
+├── test_context_cleanup.py       # Tes regresi penutupan Playwright
+├── requirements.txt              # Dependency Python terpin
+├── .gitignore                    # Proteksi artefak session/runtime
+├── logs/                         # Log runtime; diabaikan Git
+└── Laporan-Bulanan-Magang-*.md   # Laporan privat; diabaikan Git
 ```
 
-## Requirements
+## Persyaratan
 
-| Component | Requirement |
+| Komponen | Kebutuhan |
 |---|---|
 | OS | Windows 10/11 |
 | Python | 3.11+ |
-| Internet | Active connection to MagangHub Monev/SSO |
-| Account | Active MagangHub account |
-| Browser | Playwright Chromium, installed via CLI |
+| Internet | Koneksi aktif ke MagangHub Monev/SSO |
+| Akun | Akun MagangHub aktif |
+| Browser | Chromium Playwright, dipasang via CLI |
 
-## Safe Operation
+## Operasi Aman
 
-- Interactive only. Do not run via cron or unattended automation; SSO needs human confirmation and the website UI can change.
-- Browser session lives outside the project, preventing accidental cloud sync or Git commits.
-- Browser context closes before Playwright stops, avoiding `Event loop is closed` shutdown errors.
-- Logs are written to `logs/run-*.log` and only contain safe diagnostic details.
-- Report output is generated only if at least one report succeeds.
+- Hanya untuk penggunaan interaktif. Jangan gunakan cron atau proses tanpa pengawasan; SSO memerlukan konfirmasi manusia dan UI situs dapat berubah.
+- Session browser berada di luar folder proyek sehingga tidak tersinkron cloud atau ter-commit ke Git.
+- Browser context ditutup sebelum Playwright berhenti, menghindari error `Event loop is closed`.
+- Log ditulis pada `logs/run-*.log` dengan detail diagnostik aman.
+- Output hanya dibuat bila setidaknya satu laporan berhasil diekstrak.
 
-To reset the login session, close any scraper browser then remove:
+Reset session login: tutup browser scraper, lalu hapus folder berikut.
 
 ```text
 %LOCALAPPDATA%\MagangHubScraper\profile
 ```
 
-The next run will require a fresh login.
+Run berikutnya memerlukan login ulang.
 
 ## Troubleshooting
 
@@ -177,36 +177,36 @@ python -m pip install -r requirements.txt
 python -m playwright install chromium
 ```
 
-### `Page.goto: Timeout` or navigation interrupted
+### `Page.goto: Timeout` atau navigasi terinterupsi
 
-SSO is still redirecting or the connection is slow.
+SSO masih melakukan redirect atau koneksi lambat.
 
-1. Close the browser opened by the script.
-2. Run the script again.
-3. Finish SSO.
-4. Wait for the `Riwayat` page to settle.
-5. Only then press Enter in PowerShell.
+1. Tutup browser yang dibuka script.
+2. Jalankan script ulang.
+3. Selesaikan SSO.
+4. Tunggu halaman `Riwayat` stabil.
+5. Baru tekan Enter pada PowerShell.
 
 ### `laporan atau tanggal tidak muncul`
 
-Likely no report exists, the session expired, or the page did not finish loading. Login again and test a one-day range first.
+Kemungkinan tidak ada laporan, session habis, atau halaman belum selesai dimuat. Login kembali lalu uji rentang satu hari.
 
 ### `tiga bagian laporan tidak lengkap`
 
-Commonly a holiday or date with no daily report. If it occurs on a known report day, retain the safe log and inspect the current MagangHub page structure before changing the parser.
+Umumnya hari libur atau tanggal tanpa laporan. Bila terjadi pada hari yang pasti memiliki laporan, simpan log aman lalu periksa struktur halaman MagangHub sebelum mengubah parser.
 
 ### `can't open file 'D:\MyProgram\...'`
 
-Quote absolute paths containing spaces, or run from the project directory:
+Jalankan dari folder proyek:
 
 ```powershell
 cd D:\MyProgram\maganghub-report-scraper
 python .\scrape_maganghub.py
 ```
 
-## Development
+## Pengembangan
 
-Run checks after parser or browser lifecycle changes:
+Jalankan pemeriksaan setelah mengubah parser atau lifecycle browser:
 
 ```powershell
 python .\test_scrape_maganghub.py
@@ -214,22 +214,20 @@ python .\test_context_cleanup.py
 python -m py_compile .\scrape_maganghub.py .\test_scrape_maganghub.py .\test_context_cleanup.py
 ```
 
-Key implementation points:
-
-| Component | Responsibility |
+| Komponen | Tanggung jawab |
 |---|---|
-| `extract_report()` | Navigation, report validation, extraction |
-| `report_sections()` | Three-section parser |
-| `atomic_write()` | Safe output replacement |
-| `safe_url()` | Removes sensitive URL query strings from logs |
-| `PROFILE_DIR` | Local-only persistent browser session |
+| `extract_report()` | Navigasi, validasi, ekstraksi laporan |
+| `report_sections()` | Parser tiga bagian laporan |
+| `atomic_write()` | Penggantian output secara aman |
+| `safe_url()` | Menghapus query URL sensitif dari log |
+| `PROFILE_DIR` | Lokasi persistent browser session lokal |
 
-## Scope
+## Ruang Lingkup
 
-This project reads reports available to the authenticated user. It does not create, edit, approve, or submit reports on MagangHub.
+Project ini hanya membaca laporan yang tersedia untuk akun terautentikasi. Project tidak membuat, mengubah, menyetujui, atau mengirim laporan pada MagangHub.
 
-Use responsibly. MagangHub data remains subject to the applicable platform and institutional policies.
+Gunakan secara bertanggung jawab. Data MagangHub tetap tunduk pada kebijakan platform dan instansi terkait.
 
-## License
+## Lisensi
 
-No license is currently declared. All rights reserved unless the repository owner adds a license file.
+Lisensi belum ditetapkan. Seluruh hak cipta dilindungi sampai pemilik repository menambahkan file lisensi.
