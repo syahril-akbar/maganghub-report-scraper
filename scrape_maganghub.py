@@ -179,13 +179,12 @@ def main() -> int:
 
     log_file = LOG_DIR / f"run-{datetime.now():%Y%m%d-%H%M%S}.log"
     log_line(log_file, f"run started: {from_date} through {to_date}")
-    context = None
-    try:
-        with sync_playwright() as playwright:
-            PROFILE_DIR.parent.mkdir(parents=True, exist_ok=True)
-            context = playwright.chromium.launch_persistent_context(
-                str(PROFILE_DIR), headless=False, viewport={"width": 1440, "height": 1000}
-            )
+    # The Playwright context manager closes the browser before its event loop stops.
+    with sync_playwright() as playwright:
+        PROFILE_DIR.parent.mkdir(parents=True, exist_ok=True)
+        with playwright.chromium.launch_persistent_context(
+            str(PROFILE_DIR), headless=False, viewport={"width": 1440, "height": 1000}
+        ) as context:
             page = context.pages[0] if context.pages else context.new_page()
             page.goto(BASE_URL.format(date=from_date.isoformat()), wait_until="commit", timeout=120_000)
             input("Login manual bila perlu. Setelah kembali ke halaman Riwayat, tekan Enter... ")
@@ -220,9 +219,6 @@ def main() -> int:
             print(f"Saved {len(reports)} reports: {destination}")
             log_line(log_file, f"run completed: {len(reports)} reports; output={destination.name}")
             return 0
-    finally:
-        if context is not None:
-            context.close()
 
 
 if __name__ == "__main__":
