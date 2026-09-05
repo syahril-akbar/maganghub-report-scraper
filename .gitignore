@@ -1,0 +1,12 @@
+# Authentication session: local-only; never commit or sync.
+maganghub-browser-profile/
+
+# Runtime artifacts.
+logs/
+*.tmp
+.venv/
+__pycache__/
+*.py[cod]
+
+# Generated reports may contain private internship data.
+Laporan-Bulanan-Magang-*.md
